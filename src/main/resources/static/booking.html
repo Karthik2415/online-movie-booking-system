@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Tickets | Online Movie Booking</title>
+    <meta name="description" content="Select seats and book your movie tickets online.">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-card: rgba(255,255,255,0.04);
+            --accent: #6c63ff;
+            --accent-light: #a89aff;
+            --seat-available: #2a2a40;
+            --seat-selected: #6c63ff;
+            --seat-booked: #e74c5c;
+            --text: #e2e2f0;
+            --text-muted: #8888a8;
+            --success: #2ecc71;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Header ────────────────────────────── */
+        .page-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(108,99,255,0.2);
+        }
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6c63ff, #e74c5c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-header p { color: var(--text-muted); margin-top: .25rem; }
+
+        /* ── Glass Card ────────────────────────── */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        /* ── Screen ────────────────────────────── */
+        .screen-wrapper { text-align: center; margin-bottom: 2rem; }
+        .screen {
+            width: 60%;
+            margin: 0 auto;
+            height: 8px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 50%;
+            box-shadow: 0 2px 30px rgba(108,99,255,0.4);
+        }
+        .screen-label {
+            color: var(--text-muted);
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: .5rem;
+        }
+
+        /* ── Seat Grid ─────────────────────────── */
+        .seat-grid { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .seat-row { display: flex; gap: 12px; align-items: center; }
+        .seat-row-label {
+            width: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: .85rem;
+        }
+
+        .seat {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.08);
+            background: var(--seat-available);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: var(--text-muted);
+        }
+        .seat:hover:not(.booked):not(.selected) {
+            border-color: var(--accent);
+            background: rgba(108,99,255,0.15);
+            transform: scale(1.1);
+            color: var(--text);
+        }
+        .seat.selected {
+            background: var(--seat-selected);
+            border-color: var(--accent-light);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(108,99,255,0.5);
+            transform: scale(1.05);
+        }
+        .seat.booked {
+            background: var(--seat-booked);
+            border-color: rgba(231,76,92,0.4);
+            cursor: not-allowed;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ── Legend ─────────────────────────────── */
+        .legend { display: flex; gap: 1.5rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: var(--text-muted); }
+        .legend-box { width: 20px; height: 20px; border-radius: 5px; border: 2px solid rgba(255,255,255,0.08); }
+        .legend-box.avl { background: var(--seat-available); }
+        .legend-box.sel { background: var(--seat-selected); border-color: var(--accent-light); }
+        .legend-box.bkd { background: var(--seat-booked); border-color: rgba(231,76,92,0.4); }
+
+        /* ── Summary Panel ─────────────────────── */
+        .summary-card {
+            position: sticky;
+            top: 2rem;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: .75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: .9rem;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-label { color: var(--text-muted); }
+        .summary-value { font-weight: 600; }
+        .total-row .summary-value {
+            font-size: 1.3rem;
+            color: var(--accent-light);
+        }
+
+        .btn-book {
+            width: 100%;
+            padding: .9rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            background: linear-gradient(135deg, #6c63ff, #e74c5c);
+            color: #fff;
+            transition: all 0.3s;
+            margin-top: 1.5rem;
+        }
+        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.4); }
+        .btn-book:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* ── Ticket Modal ──────────────────────── */
+        .ticket-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .ticket-overlay.active { display: flex; }
+
+        .ticket {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 1px solid rgba(108,99,255,0.3);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        .ticket-badge {
+            display: inline-block;
+            background: var(--success);
+            color: #fff;
+            padding: .4rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: .85rem;
+            margin-bottom: 1.2rem;
+        }
+        .ticket h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+        .ticket-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: .6rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: .9rem;
+        }
+        .ticket-detail .label { color: var(--text-muted); }
+        .ticket-detail .value { font-weight: 600; }
+        .ticket-close {
+            margin-top: 1.5rem;
+            padding: .7rem 2rem;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent-light);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.25s;
+        }
+        .ticket-close:hover { background: var(--accent); color: #fff; }
+
+        /* ── Form Inputs ───────────────────────── */
+        .form-control, .form-select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            border-radius: 10px;
+            padding: .65rem 1rem;
+        }
+        .form-control:focus, .form-select:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--accent);
+            color: var(--text);
+            box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+        }
+        .form-label { color: var(--text-muted); font-weight: 500; font-size: .85rem; }
+
+        /* ── Toast ─────────────────────────────── */
+        .toast-msg {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--seat-booked);
+            color: #fff;
+            padding: .8rem 1.6rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: .9rem;
+            z-index: 1100;
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        .toast-msg.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1>🎬 Book Your Seats</h1>
+        <p>Select a show, pick your seats, and confirm your booking</p>
+    </div>
+
+    <div class="container py-5">
+        <div class="row g-4">
+
+            <!-- Left: Seat Selection -->
+            <div class="col-lg-8">
+                <!-- Show & User Input -->
+                <div class="glass-card mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label" for="userIdInput">User ID</label>
+                            <input type="text" class="form-control" id="userIdInput" placeholder="e.g. user001">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="showIdInput">Show ID</label>
+                            <input type="text" class="form-control" id="showIdInput" placeholder="e.g. show001">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-book w-100" style="margin-top:0" onclick="loadSeats()">Load Seats</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seat Grid -->
+                <div class="glass-card" id="seatContainer">
+                    <div class="screen-wrapper">
+                        <div class="screen"></div>
+                        <div class="screen-label">Screen</div>
+                    </div>
+
+                    <div class="seat-grid" id="seatGrid">
+                        <!-- Seats rendered by JS -->
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item"><div class="legend-box avl"></div> Available</div>
+                        <div class="legend-item"><div class="legend-box sel"></div> Selected</div>
+                        <div class="legend-item"><div class="legend-box bkd"></div> Booked</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Summary -->
+            <div class="col-lg-4">
+                <div class="glass-card summary-card">
+                    <h5 style="font-weight:700;margin-bottom:1.2rem;">🎟️ Booking Summary</h5>
+
+                    <div class="summary-row">
+                        <span class="summary-label">Show</span>
+                        <span class="summary-value" id="summaryShow">—</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Seats</span>
+                        <span class="summary-value" id="summarySeats">None</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Count</span>
+                        <span class="summary-value" id="summaryCount">0</span>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span class="summary-label">Total</span>
+                        <span class="summary-value" id="summaryTotal">₹0</span>
+                    </div>
+
+                    <button class="btn-book" id="btnConfirm" disabled onclick="confirmAndPay()">
+                        Confirm &amp; Pay
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Modal -->
+    <div class="ticket-overlay" id="ticketOverlay">
+        <div class="ticket">
+            <div class="ticket-badge">✅ Booking Confirmed</div>
+            <h2 id="ticketMovie">Movie Name</h2>
+            <div class="ticket-detail"><span class="label">Booking ID</span><span class="value" id="ticketId"></span></div>
+            <div class="ticket-detail"><span class="label">Show Time</span><span class="value" id="ticketTime"></span></div>
+            <div class="ticket-detail"><span class="label">Seats</span><span class="value" id="ticketSeats"></span></div>
+            <div class="ticket-detail"><span class="label">Total Paid</span><span class="value" id="ticketTotal"></span></div>
+            <div class="ticket-detail"><span class="label">Status</span><span class="value" id="ticketStatus"></span></div>
+            <button class="ticket-close" onclick="closeTicket()">Close</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-msg" id="toast"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ── Config ───────────────────────────────────────────────
+        const API_BASE = 'http://localhost:8080/api/booking';
+        const PRICE_PER_SEAT = 150;
+
+        // Default seat grid (used when API is unavailable for offline preview)
+        const DEFAULT_GRID = [
+            ['A1','A2','A3','A4','A5'],
+            ['B1','B2','B3','B4','B5'],
+            ['C1','C2','C3','C4','C5']
+        ];
+
+        let selectedSeats = [];
+        let bookedSeats = [];
+
+        // ── Toast ────────────────────────────────────────────────
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ── Render Seat Grid ─────────────────────────────────────
+        function renderGrid(grid, seatStatus) {
+            const container = document.getElementById('seatGrid');
+            container.innerHTML = '';
+            selectedSeats = [];
+            updateSummary();
+
+            grid.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'seat-row';
+
+                // Row label
+                const label = document.createElement('div');
+                label.className = 'seat-row-label';
+                label.textContent = row[0].charAt(0);
+                rowDiv.appendChild(label);
+
+                row.forEach(seatId => {
+                    const seat = document.createElement('div');
+                    seat.className = 'seat';
+                    seat.textContent = seatId;
+                    seat.dataset.seatId = seatId;
+
+                    if (seatStatus && seatStatus[seatId] === 'booked') {
+                        seat.classList.add('booked');
+                        seat.title = 'Already booked';
+                    } else {
+                        seat.addEventListener('click', () => toggleSeat(seat, seatId));
+                    }
+
+                    rowDiv.appendChild(seat);
+                });
+
+                container.appendChild(rowDiv);
+            });
+        }
+
+        // ── Toggle Seat ──────────────────────────────────────────
+        function toggleSeat(el, seatId) {
+            if (el.classList.contains('booked')) return;
+
+            if (el.classList.contains('selected')) {
+                el.classList.remove('selected');
+                selectedSeats = selectedSeats.filter(s => s !== seatId);
+            } else {
+                el.classList.add('selected');
+                selectedSeats.push(seatId);
+            }
+            updateSummary();
+        }
+
+        // ── Update Summary ───────────────────────────────────────
+        function updateSummary() {
+            const showId = document.getElementById('showIdInput').value || '—';
+            document.getElementById('summaryShow').textContent = showId;
+            document.getElementById('summarySeats').textContent = selectedSeats.length ? selectedSeats.join(', ') : 'None';
+            document.getElementById('summaryCount').textContent = selectedSeats.length;
+            document.getElementById('summaryTotal').textContent = '₹' + (selectedSeats.length * PRICE_PER_SEAT);
+            document.getElementById('btnConfirm').disabled = selectedSeats.length === 0;
+        }
+
+        // ── Load Seats from API ──────────────────────────────────
+        async function loadSeats() {
+            const showId = document.getElementById('showIdInput').value.trim();
+            if (!showId) { showToast('Please enter a Show ID'); return; }
+
+            try {
+                const res = await fetch(`${API_BASE}/seats/${showId}`);
+                if (!res.ok) throw new Error('API error');
+                const data = await res.json();
+                renderGrid(data.seatGrid, data.seatStatus);
+            } catch (e) {
+                console.warn('API unavailable, using default grid:', e.message);
+                renderGrid(DEFAULT_GRID, {});
+            }
+            updateSummary();
+        }
+
+        // ── Confirm & Pay ────────────────────────────────────────
+        async function confirmAndPay() {
+            const userId = document.getElementById('userIdInput').value.trim();
+            const showId = document.getElementById('showIdInput').value.trim();
+
+            if (!userId) { showToast('Please enter your User ID'); return; }
+            if (!showId) { showToast('Please enter a Show ID'); return; }
+            if (selectedSeats.length === 0) { showToast('Please select at least one seat'); return; }
+
+            document.getElementById('btnConfirm').disabled = true;
+            document.getElementById('btnConfirm').textContent = 'Processing...';
+
+            try {
+                const res = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        showId: showId,
+                        seatNumbers: selectedSeats
+                    })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Booking failed');
+                }
+
+                const ticket = await res.json();
+                showTicket(ticket);
+
+            } catch (e) {
+                showToast(e.message);
+            } finally {
+                document.getElementById('btnConfirm').textContent = 'Confirm & Pay';
+                document.getElementById('btnConfirm').disabled = false;
+            }
+        }
+
+        // ── Show Ticket Modal ────────────────────────────────────
+        function showTicket(t) {
+            document.getElementById('ticketMovie').textContent = t.movieName || 'Movie';
+            document.getElementById('ticketId').textContent = t.bookingId;
+            document.getElementById('ticketTime').textContent = t.showTime || '—';
+            document.getElementById('ticketSeats').textContent = Array.isArray(t.seatNumbers) ? t.seatNumbers.join(', ') : t.seatNumbers;
+            document.getElementById('ticketTotal').textContent = '₹' + t.totalAmount;
+            document.getElementById('ticketStatus').textContent = (t.bookingStatus || 'confirmed').toUpperCase();
+            document.getElementById('ticketOverlay').classList.add('active');
+        }
+
+        function closeTicket() {
+            document.getElementById('ticketOverlay').classList.remove('active');
+            // Reload seats to reflect newly booked seats
+            loadSeats();
+        }
+
+        // ── Init: render default grid ────────────────────────────
+        renderGrid(DEFAULT_GRID, {});
+    </script>
+</body>
+</html>
