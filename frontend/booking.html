@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +15,7 @@
     <style>
         :root {
             --bg-primary: #0f0f1a;
-            --bg-card: rgba(255,255,255,0.04);
+            --bg-card: rgba(255, 255, 255, 0.04);
             --accent: #6c63ff;
             --accent-light: #a89aff;
             --seat-available: #2a2a40;
@@ -25,7 +26,11 @@
             --success: #2ecc71;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -39,36 +44,47 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             padding: 2rem 0;
             text-align: center;
-            border-bottom: 1px solid rgba(108,99,255,0.2);
+            border-bottom: 1px solid rgba(108, 99, 255, 0.2);
         }
+
         .page-header h1 {
             font-size: 2rem;
             font-weight: 800;
             background: linear-gradient(135deg, #6c63ff, #e74c5c);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .page-header p { color: var(--text-muted); margin-top: .25rem; }
+
+        .page-header p {
+            color: var(--text-muted);
+            margin-top: .25rem;
+        }
 
         /* ── Glass Card ────────────────────────── */
         .glass-card {
             background: var(--bg-card);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.06);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 16px;
             padding: 2rem;
         }
 
         /* ── Screen ────────────────────────────── */
-        .screen-wrapper { text-align: center; margin-bottom: 2rem; }
+        .screen-wrapper {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
         .screen {
             width: 60%;
             margin: 0 auto;
             height: 8px;
             background: linear-gradient(90deg, transparent, var(--accent), transparent);
             border-radius: 50%;
-            box-shadow: 0 2px 30px rgba(108,99,255,0.4);
+            box-shadow: 0 2px 30px rgba(108, 99, 255, 0.4);
         }
+
         .screen-label {
             color: var(--text-muted);
             font-size: .75rem;
@@ -78,8 +94,19 @@
         }
 
         /* ── Seat Grid ─────────────────────────── */
-        .seat-grid { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .seat-row { display: flex; gap: 12px; align-items: center; }
+        .seat-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .seat-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
         .seat-row-label {
             width: 24px;
             text-align: center;
@@ -92,7 +119,7 @@
             width: 48px;
             height: 48px;
             border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.08);
+            border: 2px solid rgba(255, 255, 255, 0.08);
             background: var(--seat-available);
             display: flex;
             align-items: center;
@@ -103,49 +130,93 @@
             transition: all 0.25s ease;
             color: var(--text-muted);
         }
+
         .seat:hover:not(.booked):not(.selected) {
             border-color: var(--accent);
-            background: rgba(108,99,255,0.15);
+            background: rgba(108, 99, 255, 0.15);
             transform: scale(1.1);
             color: var(--text);
         }
+
         .seat.selected {
             background: var(--seat-selected);
             border-color: var(--accent-light);
             color: #fff;
-            box-shadow: 0 0 16px rgba(108,99,255,0.5);
+            box-shadow: 0 0 16px rgba(108, 99, 255, 0.5);
             transform: scale(1.05);
         }
+
         .seat.booked {
             background: var(--seat-booked);
-            border-color: rgba(231,76,92,0.4);
+            border-color: rgba(231, 76, 92, 0.4);
             cursor: not-allowed;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
         }
 
         /* ── Legend ─────────────────────────────── */
-        .legend { display: flex; gap: 1.5rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
-        .legend-item { display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: var(--text-muted); }
-        .legend-box { width: 20px; height: 20px; border-radius: 5px; border: 2px solid rgba(255,255,255,0.08); }
-        .legend-box.avl { background: var(--seat-available); }
-        .legend-box.sel { background: var(--seat-selected); border-color: var(--accent-light); }
-        .legend-box.bkd { background: var(--seat-booked); border-color: rgba(231,76,92,0.4); }
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .8rem;
+            color: var(--text-muted);
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .legend-box.avl {
+            background: var(--seat-available);
+        }
+
+        .legend-box.sel {
+            background: var(--seat-selected);
+            border-color: var(--accent-light);
+        }
+
+        .legend-box.bkd {
+            background: var(--seat-booked);
+            border-color: rgba(231, 76, 92, 0.4);
+        }
 
         /* ── Summary Panel ─────────────────────── */
         .summary-card {
             position: sticky;
             top: 2rem;
         }
+
         .summary-row {
             display: flex;
             justify-content: space-between;
             padding: .75rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-size: .9rem;
         }
-        .summary-row:last-child { border-bottom: none; }
-        .summary-label { color: var(--text-muted); }
-        .summary-value { font-weight: 600; }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--text-muted);
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
         .total-row .summary-value {
             font-size: 1.3rem;
             color: var(--accent-light);
@@ -164,25 +235,38 @@
             transition: all 0.3s;
             margin-top: 1.5rem;
         }
-        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.4); }
-        .btn-book:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-book:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(108, 99, 255, 0.4);
+        }
+
+        .btn-book:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
         /* ── Ticket Modal ──────────────────────── */
         .ticket-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(6px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
-        .ticket-overlay.active { display: flex; }
+
+        .ticket-overlay.active {
+            display: flex;
+        }
 
         .ticket {
             background: linear-gradient(145deg, #1a1a2e, #16213e);
-            border: 1px solid rgba(108,99,255,0.3);
+            border: 1px solid rgba(108, 99, 255, 0.3);
             border-radius: 20px;
             padding: 2.5rem;
             max-width: 420px;
@@ -190,10 +274,19 @@
             text-align: center;
             animation: slideUp 0.4s ease;
         }
+
         @keyframes slideUp {
-            from { transform: translateY(40px); opacity: 0; }
-            to   { transform: translateY(0);    opacity: 1; }
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
+
         .ticket-badge {
             display: inline-block;
             background: var(--success);
@@ -204,16 +297,28 @@
             font-size: .85rem;
             margin-bottom: 1.2rem;
         }
-        .ticket h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+
+        .ticket h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
         .ticket-detail {
             display: flex;
             justify-content: space-between;
             padding: .6rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-size: .9rem;
         }
-        .ticket-detail .label { color: var(--text-muted); }
-        .ticket-detail .value { font-weight: 600; }
+
+        .ticket-detail .label {
+            color: var(--text-muted);
+        }
+
+        .ticket-detail .value {
+            font-weight: 600;
+        }
+
         .ticket-close {
             margin-top: 1.5rem;
             padding: .7rem 2rem;
@@ -225,23 +330,35 @@
             font-weight: 600;
             transition: all 0.25s;
         }
-        .ticket-close:hover { background: var(--accent); color: #fff; }
+
+        .ticket-close:hover {
+            background: var(--accent);
+            color: #fff;
+        }
 
         /* ── Form Inputs ───────────────────────── */
-        .form-control, .form-select {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+        .form-control,
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text);
             border-radius: 10px;
             padding: .65rem 1rem;
         }
-        .form-control:focus, .form-select:focus {
-            background: rgba(255,255,255,0.08);
+
+        .form-control:focus,
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.08);
             border-color: var(--accent);
             color: var(--text);
-            box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
         }
-        .form-label { color: var(--text-muted); font-weight: 500; font-size: .85rem; }
+
+        .form-label {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: .85rem;
+        }
 
         /* ── Toast ─────────────────────────────── */
         .toast-msg {
@@ -259,9 +376,14 @@
             opacity: 0;
             transition: all 0.4s ease;
         }
-        .toast-msg.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        .toast-msg.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
+
 <body>
 
     <!-- Header -->
@@ -287,7 +409,8 @@
                             <input type="text" class="form-control" id="showIdInput" placeholder="e.g. show001">
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
-                            <button class="btn btn-book w-100" style="margin-top:0" onclick="loadSeats()">Load Seats</button>
+                            <button class="btn btn-book w-100" style="margin-top:0" onclick="loadSeats()">Load
+                                Seats</button>
                         </div>
                     </div>
                 </div>
@@ -304,9 +427,15 @@
                     </div>
 
                     <div class="legend">
-                        <div class="legend-item"><div class="legend-box avl"></div> Available</div>
-                        <div class="legend-item"><div class="legend-box sel"></div> Selected</div>
-                        <div class="legend-item"><div class="legend-box bkd"></div> Booked</div>
+                        <div class="legend-item">
+                            <div class="legend-box avl"></div> Available
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box sel"></div> Selected
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box bkd"></div> Booked
+                        </div>
                     </div>
                 </div>
             </div>
@@ -346,11 +475,16 @@
         <div class="ticket">
             <div class="ticket-badge">✅ Booking Confirmed</div>
             <h2 id="ticketMovie">Movie Name</h2>
-            <div class="ticket-detail"><span class="label">Booking ID</span><span class="value" id="ticketId"></span></div>
-            <div class="ticket-detail"><span class="label">Show Time</span><span class="value" id="ticketTime"></span></div>
-            <div class="ticket-detail"><span class="label">Seats</span><span class="value" id="ticketSeats"></span></div>
-            <div class="ticket-detail"><span class="label">Total Paid</span><span class="value" id="ticketTotal"></span></div>
-            <div class="ticket-detail"><span class="label">Status</span><span class="value" id="ticketStatus"></span></div>
+            <div class="ticket-detail"><span class="label">Booking ID</span><span class="value" id="ticketId"></span>
+            </div>
+            <div class="ticket-detail"><span class="label">Show Time</span><span class="value" id="ticketTime"></span>
+            </div>
+            <div class="ticket-detail"><span class="label">Seats</span><span class="value" id="ticketSeats"></span>
+            </div>
+            <div class="ticket-detail"><span class="label">Total Paid</span><span class="value" id="ticketTotal"></span>
+            </div>
+            <div class="ticket-detail"><span class="label">Status</span><span class="value" id="ticketStatus"></span>
+            </div>
             <button class="ticket-close" onclick="closeTicket()">Close</button>
         </div>
     </div>
@@ -368,9 +502,9 @@
 
         // Default seat grid (used when API is unavailable for offline preview)
         const DEFAULT_GRID = [
-            ['A1','A2','A3','A4','A5'],
-            ['B1','B2','B3','B4','B5'],
-            ['C1','C2','C3','C4','C5']
+            ['A1', 'A2', 'A3', 'A4', 'A5'],
+            ['B1', 'B2', 'B3', 'B4', 'B5'],
+            ['C1', 'C2', 'C3', 'C4', 'C5']
         ];
 
         let selectedSeats = [];
@@ -522,4 +656,5 @@
         renderGrid(DEFAULT_GRID, {});
     </script>
 </body>
+
 </html>
